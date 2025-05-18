@@ -21,20 +21,10 @@ The Flood Monitoring wrapper is a python module created to simplifying accessing
 
 ## Getting started 
 
-Once installated run the following commands in your bash/zsh terminal, which will install of the dependencies required to run the module 
-
-Installing the depencies in your current environment 
+Instaling using pip 
 
 ``` sh
-
-#enter the package directory 
-cd flood_monitoring 
-
-#export requirements.txt 
-
-poetry export > requirements.txt
-
-pip install requirements.txt 
+pip install git+https://github.com/niv-en/flood-monitoring
 
 ```
 
