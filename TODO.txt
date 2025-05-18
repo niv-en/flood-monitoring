@@ -1,0 +1,24 @@
+1. Use requests parameters 
+
+
+2. Make it possible to have  standa alone station 
+
+3. Update the plotting function so that it plots the last day/ a decent range of data 
+
+4. possibly add tests to the matplotlib plots 
+
+5. WRite up readme
+
+6. Write an example notebook explaiing how the package can be used 
+
+(minimum reqs ) 
+
+
+1. Thinka bout additional functionality 
+
+2. Forecasts seem like a nice thing to add 
+
+3. 
+
+ - cl table fomatting
+remove differentiation between different qualifiers otherwise it gets insane to manage

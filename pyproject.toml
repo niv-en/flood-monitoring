@@ -1,0 +1,26 @@
+[project]
+name = "flood-monitoring"
+version = "0.1.0"
+description = " A project which acts as a wrapper around UK Goverments flood monitoring api : https://environment.data.gov.uk/flood-monitoring/doc/reference"
+authors = [
+    {name = "nivenrooprah",email = "niven.rooprah@bbc.co.uk"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests (>=2.32.3,<3.0.0)",
+    "prettytable (>=3.16.0,<4.0.0)",
+    "matplotlib (>=3.10.1,<4.0.0)",
+    "numpy (>=2.2.6,<3.0.0)",
+]
+
+[tool.poetry]
+packages = [{include = "flood_monitoring", from = "src"}]
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
