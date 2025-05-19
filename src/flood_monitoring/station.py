@@ -137,12 +137,16 @@ class station(ABC):
 	def in_flood(self):
 		return self.__in_flood 
 
-	def __init__(self, station_id : str , parameter :str = '' , qualifier : list[str] | None = None ): 
+	def __init__(self, station_id : str , 
+					   parameter :str = '' , 
+					   qualifier : list[str] | None = None,
+					   measure_type: str = '' ): 
 
 
 		self.station_id = station_id 
 		self.parameter = parameter 
 		self.qualifier = qualifier 
+		self.measure_type = measure_type 
 
 
 		self.set_position() 
@@ -169,7 +173,7 @@ class station(ABC):
 			else:
 				value = result['items'][0].get('value' ) 
 
-			latest_measurements[measure["qualifier"] ] = value 
+			latest_measurements[measure["notation"] ] = value 
 
 		return latest_measurements
 
@@ -194,19 +198,19 @@ class station(ABC):
 
 			axes = axes_mapping[measure_dict['units'] ] 
 
-			ax[axes].bar( f"{measure_dict['qualifier']} " , value, width = 0.2 ) 
-
-			if ax[axes].get_xlabel() == '':
+			ax[axes].bar( self.format_date(time, "%H:%M" ) , value, width = 0.2 ) 
 
 
-				ax[axes].set_ylabel(measure_dict['units'])   
+			ax[axes].set_ylabel(measure_dict['units'])   
+
+			ax[axes].set_xlabel('time') 
 
 
-				ax[axes].set_title(f'{self.parameter}@{self.format_date(time, "%H:%M" )}') 
+			ax[axes].set_title(f'{measure_dict["notation"]}') 
 
 
-		plt.suptitle(f'station : {self.station_id}') 
-		plt.xlabel('(qualifier')
+		plt.suptitle(f'{self.measure_type}@{self.station_id}') 
+
 
 		plt.tight_layout() 
 
@@ -261,6 +265,8 @@ class station(ABC):
 
 	def plot_data_range(self, date_range : list[str] | None   = None  ) -> tuple[Figure, list[Axes]]:
 
+		#perhaps I want a variable which stores the paritcular name of each station 
+
 		fig, ax = plt.subplots(len(self.measures)) 
 
 		#converting axes object to a list in the case we only have one axes so we can still iterate through it 
@@ -292,11 +298,12 @@ class station(ABC):
 
 			ax[idx].set_xticks([*range(0, len(times), step_size ) ],labels  , rotation = 90 ) 
 
-			ax[idx].set_title(f'{measure["qualifier"]}' ) 
+			ax[idx].set_title(f'{measure["notation"]}' ) 
 
 			ax[idx].set_ylabel(measure["units"]) 
 
-		fig.suptitle(self.parameter) 
+
+		fig.suptitle(f'{self.measure_type}@{self.station_id}') 
 		fig.supxlabel('time')
 
 		return fig, ax 
@@ -306,8 +313,18 @@ class station(ABC):
 if __name__ == '__main__': 
 
 
-	tidal_level_station = '2928TH'
+	tidal_level_station = 'F1906'
 
 	test = station(tidal_level_station) 
 
-	print(test.measures ) 
+	fig, ax = test.plot_data_range()
+
+	fig.tight_layout() 
+
+	plt.show(block = True ) 
+
+
+
+#station.py TODO
+
+#TODO adjust plot data range to fix titles etc (for plotting function s)

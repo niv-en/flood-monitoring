@@ -40,7 +40,6 @@ def test_in_flood(valid_obj: station):
 
 	assert isinstance( valid_obj.in_flood , bool ) 
 
-
 def test_location(valid_obj: station): 
 
 	''' Checking that the longitude and latitude of the station lie within the correct range'''
@@ -55,13 +54,11 @@ def test_location(valid_obj: station):
 
 	assert lat_range[1] >= latitude >= lat_range[0] 
 
-
 def test_invalid_station_id():
 
 	with pytest.raises(Exception): 
 
 		RiverLevel(INVALID_ID)
-
 
 ''' Testing Generic Functions which are to be inherited by each of the classes '''
 

@@ -7,7 +7,7 @@ class Temperature(station):
 
 	def __init__(self, station_id):
 
-		super().__init__(station_id, parameter = 'temperature', qualifier = [] ) 
+		super().__init__(station_id, parameter = 'temperature', qualifier = [], measure_type = 'Temperature' ) 
 
 
 	def average_temp(self):

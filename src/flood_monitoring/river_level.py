@@ -6,7 +6,7 @@ class RiverLevel(station):
 
 	def __init__(self, station_id): 
 
-		super().__init__(station_id, parameter = 'level', qualifier = ['Stage', 'Downstream Stage', 'Height' ]  ) 
+		super().__init__(station_id, parameter = 'level', qualifier = ['Stage', 'Downstream Stage', 'Height' ], measure_type = 'River Level'  ) 
 
 
 if __name__ == '__main__': 
