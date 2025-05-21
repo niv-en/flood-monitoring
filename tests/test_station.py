@@ -54,6 +54,8 @@ def test_location(valid_obj: station):
 
 	assert lat_range[1] >= latitude >= lat_range[0] 
 
+	
+''' Adjusing station handling '''
 def test_invalid_station_id():
 
 	with pytest.raises(Exception): 
