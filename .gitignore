@@ -1,6 +1,6 @@
 .DS_store
 
-*pycache* 
+__pycache__/
 
 *.pyc
 

@@ -57,10 +57,10 @@ def test_location(valid_obj: station):
 	
 ''' Adjusing station handling '''
 def test_invalid_station_id():
+	
+	with pytest.raises(Exception, match = 'Incorrect Station ID'): 
 
-	with pytest.raises(Exception): 
-
-		RiverLevel(INVALID_ID)
+		station(INVALID_ID)
 
 ''' Testing Generic Functions which are to be inherited by each of the classes '''
 
