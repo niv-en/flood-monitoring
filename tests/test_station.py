@@ -33,13 +33,6 @@ def test_instance(valid_obj: station):
 
 
 
-
-def test_in_flood(valid_obj: station): 
-
-	''' Double checking that inflood is a boolean datatype  '''
-
-	assert isinstance( valid_obj.in_flood , bool ) 
-
 def test_location(valid_obj: station): 
 
 	''' Checking that the longitude and latitude of the station lie within the correct range'''

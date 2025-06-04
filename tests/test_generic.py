@@ -10,13 +10,12 @@ import numpy as np
 ''' 
 test_generic will be used to test the methods which are shared between each of the child classes, 
 to ensure that each child class is correctly calling the inhertited methods. 
-
 '''
 
-river_flow = RiverFlow('2928TH') 
+river_flow = RiverFlow('2200TH') 
 river_level = RiverLevel('F1906') 
 temperature = Temperature('1412') 
-tidal_level = TidalLevel('E70024') 
+tidal_level = TidalLevel('E71524') 
 
 
 @pytest.mark.parametrize("measure_station_class", [
@@ -26,6 +25,8 @@ tidal_level = TidalLevel('E70024')
     tidal_level
 ])
 def test_inherited_plot_data(measure_station_class): 
+
+    fig, ax = measure_station_class.plot_data() 
 
     assert isinstance(fig, Figure) 
 
@@ -39,7 +40,6 @@ def test_inherited_plot_data(measure_station_class):
     tidal_level
 ])
 def test_inherited_plot_data_range(measure_station_class): 
-
 
     fig, ax = measure_station_class.plot_data() 
 
@@ -55,7 +55,6 @@ def test_inherited_plot_data_range(measure_station_class):
     tidal_level
 ])
 def test_inherited_get_least_measurement(measure_station_class): 
-
 
     latest_measurement = measure_station_class.get_latest_measurement() 
 

@@ -1,8 +1,12 @@
 from .station import station 
-import statistics as stats 
 
 
 class Temperature(station):
+
+	'''
+	Temperaure station which inherits from the station class
+
+	'''
 
 
 	def __init__(self, station_id : str ) -> None :
@@ -12,18 +16,23 @@ class Temperature(station):
 
 	def average_temp(self, date_range : tuple | None = None ) -> float :
 
-		date_range  = self.validate_date_range(date_range) 
+		'''
+		Calculates the average temperature within the date range, if date_range is none
+		then the average temperature over the day is calculted. 
 
-		query = f'https://environment.data.gov.uk/flood-monitoring/data/readings' 
+		Inputs: 
+			date_range [list] - date range which the temperature is calculated over 
 
-		param = {'parameter' : self.parameter, 
-				 'stationReference': self.station_id,
-				 'today' : None ,
-				 'startdate' : date_range[0], 
-				 'enddate' : date_range[1] } 
+		Returns: 
 
-		response = self.make_request(query) 
+			temperature [float] - temperature which is stored as float 
+		
+		'''
+
+		measure_notation = self.measures[0].notation
+
+		response = self.get_readings(measure_notation= measure_notation, date_range=date_range ) 
 
 		values = [ reading['value'] for reading in response['items']] 
 
-		return round(stats.mean(values), 2 ) 
+		return sum(values) / len(values)  

@@ -1,7 +1,7 @@
 import pytest 
 from flood_monitoring import TidalLevel 
 
-VALID_ID = 'E70024'
+VALID_ID = 'E71524'
 
 def test_instantiation():
 
