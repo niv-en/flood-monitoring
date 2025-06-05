@@ -14,7 +14,7 @@ to ensure that each child class is correctly calling the inhertited methods.
 
 river_flow = RiverFlow('2200TH') 
 river_level = RiverLevel('F1906') 
-temperature = Temperature('1412') 
+temperature = Temperature('3901') 
 tidal_level = TidalLevel('E71524') 
 
 

@@ -10,3 +10,4 @@ class RiverFlow(station):
 
 
 		super().__init__(station_id, parameter = 'flow', qualifier = [] , measure_type = 'River Flow') 
+

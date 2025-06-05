@@ -15,6 +15,6 @@ def test_instantiation():
 def test_in_flood():
 
     ''' Double checking that inflood is a boolean datatype  '''
-    river_level_station = RiverLevel(VALID_ID) 
-
-    assert isinstance( river_level_station.in_flood , bool ) 
+    river_level_station = RiverLevel(VALID_ID)
+    
+    assert isinstance( river_level_station.in_flood , bool )

@@ -107,15 +107,10 @@ def test_plot_data_range_invalid_order(valid_obj: station):
 		valid_obj.plot_data_range(date_range) 
 
 
-
 # RIVER_LEVEL_STATION = 'F1906'
 # RIVER_FLOW_STATION = '2928TH'
 # TIDAL_LEVEL_STATION = 'E70024'
 # TEMPERATURE_STATION = '1412'
-
-
-
-
 
 # #Testing the initialisation of each of the station types 
 # @pytest.mark.parametrize("stationclass,id", [(RiverLevel, RIVER_LEVEL_STATION),

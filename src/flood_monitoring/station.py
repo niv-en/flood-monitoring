@@ -136,7 +136,7 @@ class station(ABC):
 		query = 'id/stations' 
 		params = {'stationReference' : self.station_id} 
 
-		response = self.make_request(query, params)['items'][0]
+		response = self.make_request(query, params)['items']
 
 		# if items is empty its likely that the stationID Queried for doesnt exist 	
 
@@ -146,20 +146,22 @@ class station(ABC):
 		return response
 	
 	@staticmethod
-	def parse_position(response : str) -> tuple: 
+	def parse_position(response : str) -> tuple:  
 
-		latitude, longitude  = ( response[orientation] for orientation in ['lat', 'long' ] ) 
+		latitude, longitude  = ( response[0][orientation] for orientation in ['lat', 'long' ] ) 
 		
 		''' setting both latitude and longitude as using the dunder method so that both cannot
 			 be modified as they do not have setter methods '''
 		
 		return (latitude , longitude ) 
 	
-
 	@staticmethod
-	def parse_measures(response : dict,
-					   parameter : str,
-					   qualifier : str) -> tuple: 
+	def parse_metadata(response : str  ) -> tuple:
+
+		pass 
+
+
+	def set_measures(self) -> None:  
 
 		@dataclass 
 		class measure_dclass:
@@ -184,22 +186,29 @@ class station(ABC):
 		each of our measures to assign them to our station object
 		'''
 
+		query = 'id/measures'
+		params = {'stationReference' : self.station_id} 
+
+		response = self.make_request(query = query , params = params  )['items']
+
+		# pprint.pprint(response) 
+
 		measures, data, timestamps = [], [] , [] 
 
-		for measure in response['measures']:
+		for measure in response: 
 
 			valid_measure = True 
 
-			if parameter: 
-				valid_measure =  (measure['parameter'] == parameter   ) 
-			if qualifier:  
-				valid_measure = ( measure['parameter'] == parameter and measure['qualifier'] in qualifier )
-
+			if self.parameter: 
+				valid_measure =  (measure['parameter'] == self.parameter   ) 
+			if self.qualifier:  
+				valid_measure = ( measure['parameter'] == self.parameter and measure['qualifier'] in self.qualifier )
 
 			if valid_measure:
 
 				measure_info_ = measure_dclass(
-					notation = measure.get('@id', ''),
+	
+					notation = measure.get('notation', ''),
 					parameter = measure.get('parameter', ''),
 					qualifier = measure.get('qualifier',''),
 					units = measure.get('unitName', ''),
@@ -213,6 +222,7 @@ class station(ABC):
 				timestamps.append(latest_reading.get('dateTime')) 
 
 
+
 		'''
 		if no measures are returned its likely that the parameters and qualifiers supplied didnt match any
 		measures at the station
@@ -220,9 +230,10 @@ class station(ABC):
 
 		if len(measures) == 0: 
 			raise Exception('Incorrect StationID No measurments found relating to the station type')
-		
 
-		return measures, data, timestamps 
+		self.measures = measures 
+		self.data = data
+		self.timestamps = timestamps 
 
 
 
@@ -239,17 +250,14 @@ class station(ABC):
 		self.measure_type = measure_type 
 
 		response = self.get_station_metadata() 
-		lat,long = self.parse_position(response) 
 
+		lat,long = self.parse_position(response) 
 		self.__lat = lat 
 		self.__long = long 
 
+		# pprint.pprint(response) 
+		self.set_measures() 
 
-		measures, data, timestamps = self.parse_measures(response, parameter, qualifier) 
-
-		self.measures = measures 
-		self.data = data 
-		self.timestamps = timestamps 
 
 
 	'''
@@ -257,6 +265,9 @@ class station(ABC):
 	but not directly modified by users 
 	'''
 
+	def __str__(self) -> str: 
+
+		return f'\n----Station Summary----\n\nStation Type : {self.measure_type}\nStation ID : {self.station_id}\nLocation : {(self.__lat, self.__long)}\n\n-----Summary Ended-----\n'
 
 	@property
 	def latitude(self) -> float:

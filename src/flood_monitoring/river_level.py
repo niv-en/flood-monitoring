@@ -27,7 +27,12 @@ class RiverLevel(station):
 
     def __init__(self, station_id : str) -> None: 
 
+        '''
+        Polymorphism as the init function is being overwritten to include a set_in_flood method which sets the in_flood_status for the river level station 
+        '''
+
         super().__init__(station_id, parameter = 'level', qualifier = ['Stage', 'Downstream Stage', 'Height' ], measure_type = 'River Level'  ) 
+
 
         self.set_in_flood() 
 
