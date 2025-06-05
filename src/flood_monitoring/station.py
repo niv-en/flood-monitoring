@@ -38,7 +38,11 @@ class station(ABC):
 		'''
 		date_ = datetime.datetime.strptime(date , '%Y-%m-%dT%H:%M:%SZ')
 
-		return date_.strftime(frmt )  
+		return date_.strftime(frmt )
+	
+	@staticmethod
+	def convert_to_datetime(date: str):
+		return datetime.datetime.strptime(date , '%Y-%m-%dT%H:%M:%SZ')
 
 
 	@staticmethod

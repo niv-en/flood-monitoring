@@ -1,6 +1,5 @@
 from .station import station 
 
-
 class Temperature(station):
 
 	'''
