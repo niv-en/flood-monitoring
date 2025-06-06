@@ -4,7 +4,7 @@ import pytest
 from matplotlib.figure import Figure 
 from matplotlib.axes import Axes 
 
-import numpy as np 
+import numpy as np
 
 
 ''' 

@@ -15,25 +15,20 @@ import matplotlib.pyplot as plt
 class ForecastStation(station):
 
     def __init__(self, 
-                 station_id : str,
-                 parameter : str, 
-                 qualifier : list[str]) -> None : 
+                 station_id : str )  -> None : 
+        super().__init__(station_id = station_id ) 
 
-        super().__init__(station_id = station_id, parameter = parameter, qualifier = qualifier ) 
-
-        
 
     def load_data(self,
-            measure, 
-            date_range : list| None) -> pd.DataFrame: 
+            measure_notation,
+            date_range : list| None = None ) -> pd.DataFrame: 
 
-        readings = self.get_readings(measure_notation = measure.notation,
+        readings = self.get_readings(measure_notation = measure_notation, 
                                      date_range = date_range, 
                                      csv = True ) 
         
         readings = StringIO(readings)
         readings = pd.read_csv(readings) 
-        
 
         return  readings 
     
@@ -86,15 +81,13 @@ class ForecastStation(station):
 
         return X, y 
 
-
-
-
     def fit(self, X, y ): 
         
         self.model = LinearRegression() 
-        self.model.fit(X, y )
-        self.test = 1 
 
+        self.model.fit(X, y )
+
+        #set a prediction thingy here it has to be done 
     
     def predict(self, x_last : np.ndarray , n_predictions : int) -> np.ndarray: 
 
@@ -115,14 +108,21 @@ class ForecastStation(station):
 
     @staticmethod
     def visualise_predictions(predictions: list,
-                              ground_truth : list,
+                              ground_truth : list | None ,
                               test_timestamps : list, 
                               measure ) -> tuple[Figure, Axes]: 
         
 
         fig, ax = plt.subplots(1, figsize = (7,7)) 
         ax.plot(np.arange(len(predictions)), predictions, label  = 'predictions' )
-        ax.plot(np.arange(len(ground_truth)), ground_truth , label = 'ground truth' )
+
+        '''
+        If the ground truth values are provided then they will be plotted alongside 
+        the predictions but are an optional input 
+        '''
+
+        if ground_truth: 
+            ax.plot(np.arange(len(ground_truth)), ground_truth , label = 'ground truth' )
 
         ax.set_xticks( np. arange(len(test_timestamps)),  test_timestamps, rotation = 90 ) 
 
@@ -145,7 +145,7 @@ class ForecastStation(station):
 
 
         date_range = self.validate_date_range(date_range) 
-        readings = self.load_data(measure, date_range=date_range) 
+        readings = self.load_data(measure.notation, date_range=date_range) 
 
         train_x, train_y, test_x, test_y,  test_timestamps = self.transform_data(readings, 
                                                                 lag_features=lag_features,
@@ -163,7 +163,11 @@ class ForecastStation(station):
 
         fig, ax = self.visualise_predictions(predictions , test_y, test_timestamps,  measure )
 
+        #TODO possibly add code to quantify the accuracy of the predictions, mean squared error etc 
+
         plt.tight_layout() 
+
+
 
         plt.show(block = True ) 
 

@@ -110,6 +110,99 @@ tidal_range = tidal_station.calculate_tidal_range()
 
 ```
 
+
+### HOW TO: Retrieve Readings for a particular measure 
+
+
+```py
+from flood_monitoring import station 
+
+#initialising a generic station 
+generic_station = station('1412') 
+
+#selecting the id/notation from a one of the stations measures 
+particular_meausre = generic_station.measures[0].notation 
+
+#retrieving readings in the date range 
+readings = generic_station.get_readings(measure_notation = particular_measure, 
+                                        date_range = ['2025-06-01','2025-06-05'] ) 
+
+
+#retrieving the readings from the date range specified in csv format 
+readings_csv = generic_station.get_readings(measure_notation = particular_measure, 
+                                        date_range = ['2025-06-01','2025-06-05'],
+                                        csv = True ) 
+
+#retrieving the last 10 readings for the current day as no date_range specified
+readings_limit_10 = generic_station.get_readings(measure_notation = particular_measure,
+                                                 limit = 10 )
+```
+
+### HOW TO: Create forecasts for a particular measure
+
+``` py 
+from flood_monitoring import ForecastStation
+
+forecast_station = ForecastStation('1412') 
+
+# retrieving a measure we wish to forecast
+
+measure = forecast_station.measures[0].notation 
+
+#load readings which will be used as training data 
+
+readings = forecast_station.load_data(measure_notation = measure_notation,
+                                      date_range = ['2025-06-01','2025-06-05'] ) 
+
+#transforming out readings into a feature and target variable array 
+
+X,y = forecast_station.transform_data(dataframe = readings, 
+                                      lag_features = 3, 
+                                      evaluation_split = False )
+
+#fitting a linear regression model to the training data 
+forecast_station.fit(X, y ) 
+#predicting the next 5 values 
+forecast = forecast_station.predict(n_predictions = 5 ) 
+
+print(forecast) 
+```
+
+### HOW TO: Visualise Forecasts. 
+
+``` py
+import matplotlib.pyplot as plt 
+
+fig, ax = forecast_station.visualise_predictions(predictions) 
+
+plt.tight_layout() 
+
+plt.show(block = True ) 
+
+#or 
+
+plt.savefig('filepath')
+```
+
+### HOW TO: Evaluate weather forecasts 
+
+``` py 
+
+#selecting measure to predict 
+
+measure = forecast_station.mesures[0]
+
+
+#lat_feautres = 3 , using last 3 values to predict the next 
+
+
+forecast_station.evalute_forecast(measure = measure,
+                                  date_range = ['2025-06-01', '2025-06-05'],
+                                  split_size = 5, 
+                                  lag_features = 3 ) 
+
+```
+
 ## Additional Documentation 
 
 Ipython notebooks are available in the Documentation section, which provide more detail around how to use each class etc. 
