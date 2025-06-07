@@ -39,6 +39,8 @@ class ForecastStation(station):
                         evaluation_split : bool = False, 
                         split_date : str | None  = None, 
                         split_size : int  = 5   ): 
+        
+        dataframe = dataframe[:]
 
         dataframe['dateTime64'] = pd.to_datetime(dataframe.dateTime) 
         dataframe.drop(['measure'], inplace = True, axis = 'columns' ) 
@@ -121,7 +123,7 @@ class ForecastStation(station):
         the predictions but are an optional input 
         '''
 
-        if ground_truth: 
+        if isinstance(ground_truth, np.ndarray): 
             ax.plot(np.arange(len(ground_truth)), ground_truth , label = 'ground truth' )
 
         ax.set_xticks( np. arange(len(test_timestamps)),  test_timestamps, rotation = 90 ) 
