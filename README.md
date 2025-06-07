@@ -4,15 +4,15 @@
 
 ## Overview
 
-This module was created in order to simplify accessing and plotting various weather readings such as Tidal/River Levels, Tempeatures and Flow rates.  The functions defined in the module allow interfacting with real time data from the [Enviroment Agency flood monitoring](https://environment.data.gov.uk/flood-monitoring/doc/reference)
+This module was created in order to simplify accessing and plotting various weather readings such as Tidal/River Levels, Tempeatures and Flow rates.  The functions defined in the module allow interfacting with real time data from the [Enviroment Agency flood monitoring API](https://environment.data.gov.uk/flood-monitoring/doc/reference)
 
 ## Features 
 
 - Allows users to interface with the Rich flood monitoring API 
 
-- 5 different `station` types `RiverLevel`, `RiverFlow`, `TidalLevel`, `Temperature` and `ForecastStation` 
+- 4 different `station` classes `RiverLevel`, `RiverFlow`, `TidalLevel`, `Temperature` and a `Forecast` class 
 
-- Fetch information about each Weather Station 
+- Fetch information about each weather station. (position, measures etc0 )
 
 - Retrieve readings for each station 
 
@@ -36,7 +36,7 @@ pip install git+https://github.com/niv-en/flood-monitoring
 
 ### Different weather stations 
 
-Currently the there are 5 primary classes: ``` RiverLevel```, ```RiverFlow```, ```TidalLevel``` , ``` Temperature```, `ForecastStation` each which inherit from the baseclass ```station```. 
+Currently the there are 5 primary classes: ``` RiverLevel```, ```RiverFlow```, ```TidalLevel``` , ``` Temperature```, `Forecast` each which inherit form ```station```. 
 
 ### HOW TO: initialise a RiverLevel monitoring station and retrive the latest measurement 
 
@@ -84,8 +84,7 @@ fig.save(filepath)
 Once again this can be applied to any of the station types, if no dates are passed to `plot_data_range` then the readings for the current day will be plotted. 
 
 
-
-### HOW TO: Retrieve Readings for a particular measure 
+### HOW TO: Retrieve readings for a particular measure 
 
 ```py
 from flood_monitoring import station 
@@ -111,8 +110,7 @@ readings_limit_10 = generic_station.get_readings(measure_notation = particular_m
                                                  limit = 10 )
 ```
 
-Similar to `plot_date_range` if no dates are specied the readings for the current day will be returned. By default the readings are returned as JSON, However if `csv` is set to true they will be returned as a csv string. Limit is an optional paramter if not provided then all of the readings from the query will be returned. 
-
+Similar to `plot_date_range` if no dates are specied the readings for the current day will be returned. By default the readings are returned as JSON, However if `csv` is set to true they will be returned as a csv string. Limit is an optional parameter if not provided then all of the readings from the query will be returned. 
 
 ## Station Specific Functions 
 
@@ -153,27 +151,27 @@ The ForecastStation, class extends the standard `station` class, it provides met
 ### HOW TO: Create forecasts for a particular measure
 
 ``` py 
-from flood_monitoring import ForecastStation
+from flood_monitoring import Forecast
 
-forecast_station = ForecastStation('1412') 
+forecast = Forecast() 
 
 # retrieving the noation/id for the particular measure we wish to forecast
-measure = forecast_station.measures[0].notation 
+measure = 'E70024-level-tidal_level-Mean-15_min-m'
 
 #load readings which will be used as training data 
-readings = forecast_station.load_data(measure_notation = measure_notation,
+readings = forecast.load_data(measure_notation = measure_notation,
                                       date_range = ['2025-06-01','2025-06-05'] ) 
 
 #transforming out readings into a feature and target arrays, evaluation_split set to False meaning all readings will be used as training data and lag_feature of 3 means the previous 3 values will be used to predict the next. 
-X,y = forecast_station.transform_data(dataframe = readings, 
+X,y = forecast.transform_data(dataframe = readings, 
                                       lag_features = 3, 
                                       evaluation_split = False )
 
 #Fitting our model to the data 
-forecast_station.fit(X, y ) 
+forecast.fit(X, y ) 
 
 #forecasting values, n_predictions is equal to the number of future values we want to predict. 
-forecast = forecast_station.predict(n_predictions = 5 ) 
+forecast = forecast.predict(n_predictions = 5 ) 
 
 #priting forecast
 print(forecast) 
@@ -184,7 +182,7 @@ print(forecast)
 ``` py
 import matplotlib.pyplot as plt 
 
-fig, ax = forecast_station.visualise_predictions(predictions, ground_truth, test_timestamps, measure)  
+fig, ax = forecast.visualise_predictions(predictions, ground_truth, test_timestamps, measure)  
 
 plt.tight_layout() 
 
@@ -200,12 +198,12 @@ ground truth is an optional paramter used for evaluation, if the ground truth re
 
 ``` py 
 
-#selecting a measure to predict from all of the measures available at this Forecast Station.
-measure = forecast_station.mesures[0]
+#defining the measure dataclass we wish to predict 
+measure = river_level.measures[0] 
 
 
 #function will train and evaluate the model by returning an optional graph of predictions
-forecast_station.evalute_forecast(measure = measure,
+forecast.evalute_forecast(measure = measure,
                                   date_range = ['2025-06-01', '2025-06-05'],
                                   split_size = 5, 
                                   lag_features = 3 ) 
