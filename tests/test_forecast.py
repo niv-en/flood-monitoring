@@ -32,7 +32,7 @@ def test_isinstance(valid_obj : ForecastStation):
 def test_load_data(valid_obj : ForecastStation):
 
     measure = valid_obj.measures[0] 
-    readings = valid_obj.load_data(measure) 
+    readings = valid_obj.load_data(measure.notation)
 
     print(readings)
     assert isinstance(readings, pd.DataFrame) 
@@ -67,8 +67,6 @@ def sample_data():
     sample_dataframe = pd.read_csv(sample_data) 
 
     return sample_dataframe 
-
-
 
 def test_transform_data(valid_obj : ForecastStation, sample_data):
 
@@ -137,15 +135,23 @@ def test_fit_model(valid_obj, sample_training_data):
     assert isinstance(valid_obj.model, LinearRegression) 
 
     #checking if the number of coefficients learnt is equal to the dimonsion of training data 
-
     coefficients = valid_obj.model.coef_
 
     assert len(coefficients) == 3 
 
+def test_predict(valid_obj, sample_training_data):
+                 
+    X,y = sample_training_data
+    valid_obj.fit(X, y ) 
 
+    n_predictions = 5 
+    x_last = np.arange(3)  
 
+    predictions = valid_obj.predict(x_last = x_last,
+                      n_predictions = n_predictions) 
 
-def test_predict(valid_obj, sample_training_data): 
+    #verifying that the predictions are of type numpy array 
+    assert isinstance(predictions ,  np.ndarray) 
 
-
-    
+    #verifying the length of the predictions 
+    assert len(predictions) == n_predictions 

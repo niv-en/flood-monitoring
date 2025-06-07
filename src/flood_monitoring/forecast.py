@@ -134,7 +134,6 @@ class ForecastStation(station):
         fig.legend() 
         return fig, ax
     
-
     def evaluate_forecast(self,
                          measure,
                          date_range : list | None = None, 
