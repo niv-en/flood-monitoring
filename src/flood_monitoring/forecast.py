@@ -2,6 +2,8 @@ from .station import station
 import pandas as pd 
 from io import StringIO
 
+import datetime 
+
 import numpy as np 
 
 from sklearn.linear_model import LinearRegression
@@ -40,7 +42,7 @@ class ForecastStation(station):
                         split_date : str | None  = None, 
                         split_size : int  = 5   ): 
         
-        dataframe = dataframe[:]
+        dataframe = dataframe.loc[:, : ]
 
         dataframe['dateTime64'] = pd.to_datetime(dataframe.dateTime) 
         dataframe.drop(['measure'], inplace = True, axis = 'columns' ) 
@@ -107,13 +109,19 @@ class ForecastStation(station):
 
         return predictions
     
-
     @staticmethod
-    def visualise_predictions(predictions: list,
+    def timestamps_to_date_str(timestamp):
+        datetime_obj = datetime.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%SZ')
+        
+        date_str = datetime_obj.date().strftime('%Y-%m-%d')
+
+        return date_str 
+    
+    def visualise_predictions(self,
+                              predictions: list,
                               ground_truth : list | None ,
                               test_timestamps : list, 
                               measure ) -> tuple[Figure, Axes]: 
-        
 
         fig, ax = plt.subplots(1, figsize = (7,7)) 
         ax.plot(np.arange(len(predictions)), predictions, label  = 'predictions' )
@@ -125,6 +133,11 @@ class ForecastStation(station):
 
         if isinstance(ground_truth, np.ndarray): 
             ax.plot(np.arange(len(ground_truth)), ground_truth , label = 'ground truth' )
+
+        date_range = [*map(self.timestamps_to_date_str, [test_timestamps[i] for i in [0, -1]]) ] 
+        units = self.configure_units(date_range) 
+
+        test_timestamps  = [self.format_date(timestamp, units) for timestamp in test_timestamps] 
 
         ax.set_xticks( np. arange(len(test_timestamps)),  test_timestamps, rotation = 90 ) 
 
@@ -157,11 +170,7 @@ class ForecastStation(station):
         self.fit(train_x, train_y) 
 
         predictions = self.predict(test_x , len(test_y))
-
-        units = self.configure_units(date_range) 
-        test_timestamps  = [self.format_date(timestamp, units) for timestamp in test_timestamps] 
-
-
+        
         fig, ax = self.visualise_predictions(predictions , test_y, test_timestamps,  measure )
 
         #TODO possibly add code to quantify the accuracy of the predictions, mean squared error etc 

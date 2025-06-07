@@ -432,10 +432,6 @@ class station(ABC):
 
 			measure_notation = measure.notation
 			response = self.get_readings(measure_notation= measure_notation, date_range = date_range)
-			
-			print('\n' * 5)
-			print(response) 
-			print('\n' * 5)
 
 			values = [ reading['value'] for reading in response['items'] ] 
 			times = [ reading['dateTime'] for reading in response['items'] ]
