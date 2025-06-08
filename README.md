@@ -4,7 +4,7 @@
 
 ## Overview
 
-This module was created in order to simplify accessing and plotting various weather readings such as Tidal/River Levels, Tempeatures and Flow rates.  The functions defined in the module allow interfacting with real time data from the [Enviroment Agency flood monitoring API](https://environment.data.gov.uk/flood-monitoring/doc/reference)
+This module was created in order to simplify accessing and plotting various weather readings such as tidal/river levels, tempeatures and flow rates.  The classes defined in the module allow interfacting with real time data from the [Enviroment Agency flood monitoring API](https://environment.data.gov.uk/flood-monitoring/doc/reference). 
 
 ## Features 
 
