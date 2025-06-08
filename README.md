@@ -1,7 +1,5 @@
 # Flood Monitoring API wrapper
 
-
-
 ## Overview
 
 This module was created in order to simplify accessing and plotting various weather readings such as tidal/river levels, temperatures and flow rates.  The classes defined in the module allow interfacting with real time data from the [Enviroment Agency flood monitoring API](https://environment.data.gov.uk/flood-monitoring/doc/reference). 
@@ -224,4 +222,4 @@ This function orchastrates and strings together  `Forecast methods to evaluate a
 
 ## Acknowledgements
 
-This is a wrapper built on top of the UK Environemt Agency flood monitoring [API](https://environment.data.gov.uk/flood-monitoring/doc/reference) and is not affiliated with the environemnt agency. 
+This is a wrapper built on top of the UK Environment Agency flood monitoring [API](https://environment.data.gov.uk/flood-monitoring/doc/reference) and is not affiliated with the environment agency. 
