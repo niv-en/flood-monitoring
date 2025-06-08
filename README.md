@@ -12,7 +12,7 @@ This module was created in order to simplify accessing and plotting various weat
 
 - 4 different `station` classes `RiverLevel`, `RiverFlow`, `TidalLevel`, `Temperature` and a `Forecast` class 
 
-- Fetch information about each weather station. (position, measures etc0 )
+- Fetch information about each weather station. (position, measures etc)
 
 - Retrieve readings for each station 
 
