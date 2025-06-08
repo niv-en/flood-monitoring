@@ -32,7 +32,6 @@ def test_instance(valid_obj: station):
 	assert isinstance(valid_obj, station) 
 
 
-
 def test_location(valid_obj: station): 
 
 	''' Checking that the longitude and latitude of the station lie within the correct range'''
@@ -106,36 +105,6 @@ def test_plot_data_range_invalid_order(valid_obj: station):
 	with pytest.raises(Exception, match = 'end date before start date'):
 		valid_obj.plot_data_range(date_range) 
 
-
-# RIVER_LEVEL_STATION = 'F1906'
-# RIVER_FLOW_STATION = '2928TH'
-# TIDAL_LEVEL_STATION = 'E70024'
-# TEMPERATURE_STATION = '1412'
-
-# #Testing the initialisation of each of the station types 
-# @pytest.mark.parametrize("stationclass,id", [(RiverLevel, RIVER_LEVEL_STATION),
-# 											 (RiverFlow, RIVER_FLOW_STATION), 
-# 											 (TidalLevel, TIDAL_LEVEL_STATION), 
-# 											 (Temperature, TEMPERATURE_STATION)] ) 
-# def test_station_types(stationclass, id):
-
-# 	assert isinstance(stationclass(station_id = id), stationclass ) 
-
-
-# def test_get_latest_reading():
-
-# 	''' double checking that function returns a dictionary '''
-
-# 	temp = Temperature(TEMPERATURE_STATION) 
-
-# 	assert isinstance(temp.get_latest_measurement() , dict) 
-
-
-# def test_plot_data(): 
-
-# 	''' Double checking the properties of a particular figure '''
-
-# TidalLevel(TIDAL_LEVEL_STATION) 
 
 
 

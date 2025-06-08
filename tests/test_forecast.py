@@ -1,4 +1,4 @@
-from flood_monitoring import Forecast, station
+from flood_monitoring import Forecast, FloodMonitoringMixin
 
 import pytest 
 
@@ -25,9 +25,9 @@ def valid_obj() -> Forecast:
 
 
 @pytest.fixture
-def measure() -> station.measure_dclass: 
+def measure() -> FloodMonitoringMixin.measure_dclass: 
 
-    measure = station.measure_dclass(
+    measure = FloodMonitoringMixin.measure_dclass(
         notation = '1412-temperature-dry_bulb-i-1_h-deg_C',
         parameter = 'temperature', 
         qualifier = 'Dry Blub',
@@ -45,7 +45,7 @@ def test_isinstance(valid_obj : Forecast):
 
     assert isinstance(valid_obj, Forecast)
 
-def test_load_data(valid_obj : Forecast, measure : station.measure_dclass):
+def test_load_data(valid_obj : Forecast, measure : FloodMonitoringMixin.measure_dclass):
 
     readings = valid_obj.load_data(measure.notation)
 
@@ -112,7 +112,7 @@ def test_transform_data_evaluation_set(valid_obj : Forecast, sample_data):
     assert isinstance(test_timestamps, np.ndarray) 
 
 
-def test_visualise_predictions(valid_obj : Forecast, measure : station.measure_dclass): 
+def test_visualise_predictions(valid_obj : Forecast, measure : FloodMonitoringMixin.measure_dclass): 
 
     predictions = [*range(1,10)]
     ground_truth = [*range(1,10)] 

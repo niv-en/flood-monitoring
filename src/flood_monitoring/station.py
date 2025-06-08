@@ -14,6 +14,13 @@ import numpy as np
 
 class FloodMonitoringMixin: 
 
+	'''
+	Mixin class which contains methods to add functionality to the station class
+	and the forecast class. This class was created as it was handy to have the forecast 
+	class inherit from the station class in order to inherit certain methods, However
+	the forecast class  class could not logically be a child of tthe station class. Hence, 
+	a seperate Mixin class was created which stores the shared methods of both classes. 
+	'''
 
 	@staticmethod 
 	def format_date(date : str , frmt : str) -> str:

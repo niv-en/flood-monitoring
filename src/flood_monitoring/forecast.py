@@ -1,4 +1,4 @@
-from .station import FloodMonitoringMixin, station 
+from .station import FloodMonitoringMixin
 import pandas as pd 
 from io import StringIO
 
@@ -11,6 +11,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 from matplotlib.figure import Figure 
 from matplotlib.axes import Axes 
+
 
 import matplotlib.pyplot as plt 
 
@@ -191,7 +192,7 @@ class Forecast(FloodMonitoringMixin):
     
     def visualise_predictions(self,
                               predictions: np.ndarray,
-                              measure : station.measure_dclass, 
+                              measure : FloodMonitoringMixin.measure_dclass, 
                               test_timestamps : list, 
                               ground_truth : np.ndarray | None ) -> tuple[Figure, Axes]: 
         
@@ -239,7 +240,7 @@ class Forecast(FloodMonitoringMixin):
         return fig, ax
 
     def evaluate_forecast(self,
-                         measure : station.measure_dclass, 
+                         measure : FloodMonitoringMixin.measure_dclass, 
                          date_range : list | None = None, 
                          split_date  : str | None = None, 
                          split_size : int = 5, 
