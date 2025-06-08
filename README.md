@@ -29,14 +29,15 @@ The package can be installed using pip referencing the repository in Github.
 
 ``` sh
 pip install git+https://github.com/niv-en/flood-monitoring
-
 ```
 
 ## Functionality 
 
-### Different weather stations 
+### Different classes 
 
-Currently the there are 5 primary classes: ``` RiverLevel```, ```RiverFlow```, ```TidalLevel``` , ``` Temperature```, `Forecast` each which inherit form ```station```. 
+There are 5 classes : 
+
+There are 4 measure station classes  ``` RiverLevel```, ```RiverFlow```, ```TidalLevel``` , ``` Temperature``` which can be used to instantiate different station types which monitor different measures. There is also a `Forecast` class which provides methods to forecast values for measures. 
 
 ### HOW TO: initialise a RiverLevel monitoring station and retrive the latest measurement 
 
@@ -64,11 +65,10 @@ from flood_monitoring import Temperature
 
 temperature_station = Temperature('1412') 
 
-#need to add dates hre 
-fig, ax = temperature_station.plot_data_range()
+#plotting the temperature readings from 1st to the 6th of June. 
+fig, ax = temperature_station.plot_data_range(['2025-06-01', '2025-06-05'])
 
 #specifying tight_layout so no objects draw over each other 
-
 fig.tight_layout() 
 
 
@@ -78,11 +78,9 @@ fig.show()
 
 fig.save(filepath) 
 
-
 ```
 
 Once again this can be applied to any of the station types, if no dates are passed to `plot_data_range` then the readings for the current day will be plotted. 
-
 
 ### HOW TO: Retrieve readings for a particular measure 
 
@@ -110,15 +108,15 @@ readings_limit_10 = generic_station.get_readings(measure_notation = particular_m
                                                  limit = 10 )
 ```
 
-Similar to `plot_date_range` if no dates are specied the readings for the current day will be returned. By default the readings are returned as JSON, However if `csv` is set to true they will be returned as a csv string. Limit is an optional parameter if not provided then all of the readings from the query will be returned. 
+Similar to `plot_date_range` if no dates are specied the readings for the current day will be returned. By default the readings are returned as JSON, However if `csv` is set to `True` they will be returned as a csv string. `limit` is an optional parameter, if not provided then all of the readings from the query will be returned. 
 
 ## Station Specific Functions 
 
-Some classes have additional methods to extend the functionality of the base `station` class. E.g. The `Temperature` station class provides a function calculate the mean temperature and the `TidalLevel` station class provides a function to calculuate the tidal range. 
+Some weather station classes have additional methods and attributesto extend the functionality of the base `station` class. E.g. The `Temperature` station class provides a function calculate the mean temperature and the `TidalLevel` station class provides a function to calculuate the tidal range. 
 
 ### Temperature 
 
-### HOW TO: Retrive the mean temperature over a given range 
+### HOW TO: Retrive the mean temperature over a given date range. 
 
 ``` py 
 
@@ -126,14 +124,15 @@ from flood_monitoring import Temperature
 
 temperature_station = Temperature('1412') 
 
-avg_temp = temperature_station.mean_temperature() 
-
+avg_temp = temperature_station.mean_temperature(date_range = ['2025-06-01', '2025-06-07']) 
 
 ```
 
+If no date_range is specified then the mean temperature of the current day will be computed. 
+
 ### Tidal Level 
 
-### HOW TO: Retrive the Tidal range over the last day
+### HOW TO: Retrive the tidal range over a given date range. 
 
 ``` py 
 
@@ -141,12 +140,13 @@ from flood_monitoring import TidalLevel
 
 tidal_station = TidalLevel('E70024') 
 
-tidal_range = tidal_station.calculate_tidal_range() 
+tidal_range = tidal_station.calculate_tidal_range(['2025-06-01', '2025-06-07']) 
 
 ```
+
 #### Forecast Station 
 
-The ForecastStation, class extends the standard `station` class, it provides methods to forecast measures, it uses a simple autoregressive linear regression model (produces predictions by using the previous n values ). The class also includes  methods to load and transform the data, as well as visualise and evalute forecasts.
+The ForecastStation, class extends the standard `station` class. It provides methods to forecast measures using a  simple autoregressive linear regression model (produces predictions by using the previous n values ). The class also includes  methods to load and transform the data, as well as visualise and evalute forecasts.
 
 ### HOW TO: Create forecasts for a particular measure
 
@@ -158,7 +158,7 @@ forecast = Forecast()
 # retrieving the noation/id for the particular measure we wish to forecast
 measure = 'E70024-level-tidal_level-Mean-15_min-m'
 
-#load readings which will be used as training data 
+#load readings as a dataframe to be used as training data 
 readings = forecast.load_data(measure_notation = measure_notation,
                                       date_range = ['2025-06-01','2025-06-05'] ) 
 
@@ -192,17 +192,18 @@ plt.show(block = True )
 
 plt.savefig('filepath')
 ```
-ground truth is an optional paramter used for evaluation, if the ground truth readings are supplied to the function the  predictions and the observed values are plotted side by side. 
+
+`ground_truth` is an optional parameter,  the `ground_truth` readings are supplied then they are plotted side by side with the predicted values. 
 
 ### HOW TO: Evaluate weather forecasts 
 
 ``` py 
 
-#defining the measure dataclass we wish to predict 
+#selecting a measure from the river_level station initialised previously we wish to predict. 
 measure = river_level.measures[0] 
 
 
-#function will train and evaluate the model by returning an optional graph of predictions
+#function will train and evaluate the model and return graph displaying the predictions against the ground truth. 
 forecast.evalute_forecast(measure = measure,
                                   date_range = ['2025-06-01', '2025-06-05'],
                                   split_size = 5, 

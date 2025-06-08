@@ -1,4 +1,3 @@
-
 from abc import ABC
 
 import requests 
@@ -8,13 +7,8 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes 
 
-from enum import Flag 
 from dataclasses import dataclass 
-
 import numpy as np 
-
-import pprint 
-
 
 class station(ABC):
 
@@ -205,12 +199,13 @@ class station(ABC):
 
 			if self.parameter: 
 				valid_measure =  (measure['parameter'] == self.parameter   ) 
+
 			if self.qualifier:  
 				valid_measure = ( measure['parameter'] == self.parameter and measure['qualifier'] in self.qualifier )
 
-			if valid_measure:
+			if valid_measure: 
 
-				measure_info_ = measure_dclass(
+				measure_info_ = self.measure_dclass(
 	
 					notation = measure.get('notation', ''),
 					parameter = measure.get('parameter', ''),
@@ -225,8 +220,6 @@ class station(ABC):
 				data.append(latest_reading.get('value')) 
 				timestamps.append(latest_reading.get('dateTime')) 
 
-
-
 		'''
 		if no measures are returned its likely that the parameters and qualifiers supplied didnt match any
 		measures at the station
@@ -239,14 +232,11 @@ class station(ABC):
 		self.data = data
 		self.timestamps = timestamps 
 
-
-
-
 	def __init__(self, station_id : str , 
 					   parameter :str = '' , 
 					   qualifier : list[str] | None = None,
 					   measure_type: str = '' ): 
-		
+
 		#setting stations parameter
 		self.station_id = station_id 
 		self.parameter = parameter 
