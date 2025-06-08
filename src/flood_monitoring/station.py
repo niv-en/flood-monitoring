@@ -411,7 +411,9 @@ class station(ABC, FloodMonitoringMixin) :
 
 		'''
 		current_measures  = [ *zip(self.measures, self.data , self.timestamps) ] 
-		mask = [*map( all , current_measures ) ] 
+		mask = [*map( lambda x: None not in  x  , current_measures ) ] 
+
+
 		filtered_measures = [measure for  measure, flag in zip(current_measures, mask) if flag  ]
 
 		if len(filtered_measures) == 0: 
@@ -423,9 +425,8 @@ class station(ABC, FloodMonitoringMixin) :
 		ax = np.array([ax]) if len(filtered_measures) == 1 else  ax 
 
 		# Iterating through each of the measures with values and plotting the results. 
+
 		for idx, ( measure, value, time ) in enumerate(filtered_measures):
-
-
 			if value == None or time == None: 
 				continue 
 
