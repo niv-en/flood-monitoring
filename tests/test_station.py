@@ -103,7 +103,7 @@ def test_plot_data_range_invalid_order(valid_obj: station):
 
 	date_range = ('2023-01-23', '2023-01-02')
 
-	with pytest.raises(Exception, match = 'End date before start date'):
+	with pytest.raises(Exception, match = 'end date before start date'):
 		valid_obj.plot_data_range(date_range) 
 
 

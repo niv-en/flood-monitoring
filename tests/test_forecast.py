@@ -46,7 +46,7 @@ def test_isinstance(valid_obj : Forecast):
     assert isinstance(valid_obj, Forecast)
 
 def test_load_data(valid_obj : Forecast, measure : station.measure_dclass):
-    
+
     readings = valid_obj.load_data(measure.notation)
 
     assert isinstance(readings, pd.DataFrame) 
@@ -119,9 +119,9 @@ def test_visualise_predictions(valid_obj : Forecast, measure : station.measure_d
     test_timestamps = [f'2025-06-0{i}T00:00:00Z' for i in range(1, 10) ] 
 
     fig, ax = valid_obj.visualise_predictions(predictions=predictions,
-                                              ground_truth=ground_truth,
+                                              measure = measure,
                                               test_timestamps=test_timestamps,
-                                              measure = measure )
+                                              ground_truth=ground_truth )
     
     assert isinstance(fig, Figure) 
     assert isinstance(ax, Axes )

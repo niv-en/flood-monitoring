@@ -10,23 +10,16 @@ from matplotlib.axes import Axes
 from dataclasses import dataclass 
 import numpy as np 
 
-class station(ABC):
-
-	''' station class inheriting from abstract base class as it is not meant to be called invividually 
-		but rather inherited by each of the station type classes
-	'''
 
 
-	'''
-	Defining helper function as staticmethods, as they do not interact with the class attributes
-	themseves and are encapsulated within the station class. 
-	'''
+class FloodMonitoringMixin: 
+
 
 	@staticmethod 
 	def format_date(date : str , frmt : str) -> str:
 
 		'''
-		format_date: formats date strings returned by the API into datetime objects,
+		formats date strings returned by the API into datetime objects,
 		with are then reformatted with the string format passed to the function
 		
 		'''
@@ -38,22 +31,25 @@ class station(ABC):
 	def convert_to_datetime(date: str):
 		return datetime.datetime.strptime(date , '%Y-%m-%dT%H:%M:%SZ')
 
-
 	@staticmethod
-	def make_request( query : str , params : dict  = {} , return_json = True ) -> dict :
-
+	def make_request(query : str,
+					 params : dict  = {},
+					 return_json = True ) -> dict | str:
 
 		'''
 		Function to send and process a requests using the python requests library.
-		Query string and parameter dictionary are provided to the function. 
+		Query string, parameter dictionary and return_json flag are passed to the function. 
 		'''
 
 		base_url = 'https://environment.data.gov.uk/flood-monitoring/' 
 		query = base_url + query 
 
 		response = requests.get(query, params = params) 
+
+		'''raising an exception if the status_code is not 200 (successful request) '''
 		if response.status_code != 200: 
 			raise Exception(f'Invalid Query, status code : {response.status_code}')
+		
 		
 		if return_json: 
 			return response.json() 
@@ -61,22 +57,17 @@ class station(ABC):
 		return response.text
 
 	@staticmethod
-	def validate_date_range(date_range : list | None , return_str : bool = True  ) -> list[datetime.datetime] | None: 
-
-		''' 
-		If date_range is None, then no format/order checks are required as the
-		date_range is replaced with the current date in the correct format 
+	def validate_date_range(date_range : list | None ,
+						    return_str : bool = True  ) -> list[datetime.datetime] | list[str] : 
 
 		'''
+		static method to validate that a given date range supplied is valid,
+		as well as the option to return the date range as either a list of datetime or str objects.
+		If date_range is None its replaced with the current date in the correct format '''
 
 		if date_range == None: 
 			current_date = datetime.datetime.now().date().strftime('%Y-%m-%d') 
 			date_range =  [current_date, current_date ]
-
-
-		'''
-		If a date_range is not None, then check the format of the dates as well as the order 
-		'''
 
 		try: 
 			date_range_converted = [ (lambda x : datetime.datetime.strptime(x, '%Y-%m-%d'))(date) for date in date_range ]
@@ -84,11 +75,11 @@ class station(ABC):
 			raise Exception('Invalid Date Format') 
 
 		if date_range_converted[0] > date_range_converted[1]: 
-			raise Exception('End date before start date') 
+			raise Exception('end date before start date') 
 
 		'''
 		if no execptions are raised i.e the date range was valid then either the string/datetime objects range 
-		is passed back depending on the return_str parameter
+		is passed back depending on the value of return_str
 
 		'''
 		if return_str: 
@@ -96,16 +87,21 @@ class station(ABC):
 
 		return date_range_converted
 	
-
-
 	@staticmethod
 	def configure_units(date_range):
 
+		
+
 		''' 
-		Function calculates the most appropriate units from a given date range, E.g if the date range s
-		pecified is from the 1st of setember to the 13th the graph units will show the date, hour, minute etc. 
+		Function calculates the most appropriate units a given date range, E.g if the date range specified
+		is from the 1st of september to the 13th of september then there is no need to display the month so 
+		all timestamps will be formatted to only include day of month, hour, minute and second. 
+
+		And if the date range only convered a single day then all timestamps should be formatted to only 
+		include hour, minute and second.
 		'''
 
+		
 		date_range = [ (lambda x : datetime.datetime.strptime(x, '%Y-%m-%d'))(date) for date in date_range ]
 
 		label_format = '' 
@@ -113,6 +109,9 @@ class station(ABC):
 		datetime_formats = ['%Y-', '%m-', '%d ' ] 
 
 		#flag determines if we have found the order of magnitude where the two dates align e.g same year, month, day 
+		'''
+		flag determines if we have found the order of magnitude where the two dates align. e.g. same year, month or day 
+		'''
 
 		flag = False
 
@@ -128,39 +127,61 @@ class station(ABC):
 		label_format += '%H:%M'
 
 		return label_format 
-	
-	def get_station_metadata(self) -> dict: 
 
-		query = 'id/stations' 
-		params = {'stationReference' : self.station_id} 
 
-		response = self.make_request(query, params)['items']
-
-		# if items is empty its likely that the stationID Queried for doesnt exist 	
-
-		if response == []: 
-			raise Exception('Incorrect Station ID') 
+	def get_readings(self,
+				measure_notation : str,
+				date_range : list[datetime.datetime] | None  = None, 
+				limit : int | None = None, 
+				csv : bool =  False) -> dict | str: 
 		
-		return response
-	
-	@staticmethod
-	def parse_position(response : str) -> tuple:  
+		'''
+		Creating a get readings helper funciton, which returns readings for a particular measure
+		provided a date_range and a record limit. Also with the option to return results as a csv for analysis 
 
-		latitude, longitude  = ( response[0][orientation] for orientation in ['lat', 'long' ] ) 
-		
-		''' setting both latitude and longitude as using the dunder method so that both cannot
-			 be modified as they do not have setter methods '''
-		
-		return (latitude , longitude ) 
-	
-	@staticmethod
-	def parse_metadata(response : str  ) -> tuple:
+		Inputs: 
 
-		pass 
+			measure_notation [str] - id/notation of particular measure you wish to retrieve readings for 
+			date_range [list]      - range of dates to retreive the readings for 
+			limit [int]            - maximum number of readings returned
+			csv [bool]             - if True will return results of query in csv format otherwise JSON 
+
+		Output: 
+			result [dict | str] - returns results as either a JSON object or a CSV string. 
+		'''
+
+
+		'''
+		adjusting the query and params to the functions inputs
+		'''
+		params= {}
+		query = f'id/measures/{measure_notation}/readings'
+		return_json = True 
+
+		if csv: 
+			query = f'id/measures/{measure_notation}/readings.csv'
+			return_json = False 
+
+		if limit: 
+			params['_limit'] = limit 
+
+		date_range_= self.validate_date_range(date_range, return_str = True )
+
+		params['startdate'] = date_range_[0]
+		params['enddate'] = date_range_[1] 	
+
+		result = self.make_request(query, params , return_json ) 
+
+		return result 
 	
 	@dataclass 
 	class measure_dclass:
 
+		'''
+		initialising a dataclass which allows us to store all of the relevant information
+		related to a particular object in a measure_dlcass object. 
+		
+		'''
 		notation : str
 		parameter : str 
 		qualifier : str
@@ -168,8 +189,61 @@ class station(ABC):
 		value_type : str
 
 		def __str__(self) -> str:
+
+			'''
+			Overwtiting __str__ method such that when a measure dataclass is printed a
+			text summary of that measure will be returned '''
+
 			return f'\n----Measure Summary----\n\nMeasure ID : {self.notation}\nParameter : {self.parameter}\nQualifier : {self.qualifier}\nUnits : {self.units}\nValue Type : {self.value_type}'
 		
+
+class station(ABC, FloodMonitoringMixin) :
+
+	''' station class inheriting from abstract base class as it is not meant to be called invividually 
+		but rather inherited by each of the station type classes
+	'''
+
+	'''
+	Defining helper function as staticmethods, as they do not interact with the class attributes
+	themseves and are encapsulated within the station class. 
+	'''
+
+	
+	def get_station_metadata(self) -> dict: 
+
+		'''
+		uses the station_id supplied to the constructor to query the API for information 
+		about the monitoring station inc posisiton, name etc. 
+		'''
+
+		query = 'id/stations' 
+		params = {'stationReference' : self.station_id} 
+
+		response = self.make_request(query, params, return_json = True )['items'] 
+
+		# if items is empty its likely that the stationID Queried for doesnt exist 	
+		if response == []: 
+			raise Exception('Incorrect Station ID') 
+		
+		return response
+
+
+	@staticmethod
+	def parse_position(response : dict) -> tuple:  
+
+		'''
+		parsing position from the output of get_station_metadata. 
+		'''
+
+		latitude, longitude  = ( response[0][orientation] for orientation in ['lat', 'long' ] ) 
+		
+		return (latitude , longitude ) 
+	
+	@staticmethod
+	def parse_metadata(response : str  ) -> None: 
+
+		pass 
+
 
 	def set_measures(self) -> None:  
 
@@ -179,19 +253,17 @@ class station(ABC):
 		TidalLevel station by specifying 'Tidal Level' as the parameter. 
 		'''
 
-		'''
-		Converting the reponse object into a list in the case only one measure was returned as we wish to loop through
-		each of our measures to assign them to our station object
-		'''
-
 		query = 'id/measures'
 		params = {'stationReference' : self.station_id} 
 
 		response = self.make_request(query = query , params = params  )['items']
 
-		# pprint.pprint(response) 
-
 		measures, data, timestamps = [], [] , [] 
+
+		'''
+		looping through all measures associated to the station and storing those which meet
+		the paramter and qualifier requirements as measure_dclasses objects in a list. 
+		'''
 
 		for measure in response: 
 
@@ -205,6 +277,9 @@ class station(ABC):
 
 			if valid_measure: 
 
+				'''
+				initialising a measure_dclass object. 
+				'''
 				measure_info_ = self.measure_dclass(
 	
 					notation = measure.get('notation', ''),
@@ -214,6 +289,10 @@ class station(ABC):
 					value_type= measure.get('ValueType','') 
 				)
 
+
+				'''appending the meausre, its latest reading and its timestamp to our
+				   measures, data and timestamps attributes'''
+				
 				latest_reading = measure.get('latestReading', {} ) 
 
 				measures.append(measure_info_)
@@ -237,31 +316,37 @@ class station(ABC):
 					   qualifier : list[str] | None = None,
 					   measure_type: str = '' ): 
 
-		#setting stations parameter
+
+
 		self.station_id = station_id 
 		self.parameter = parameter 
 		self.qualifier = qualifier 
 		self.measure_type = measure_type 
 
+		'''
+		retrieving station metadata using the station_id supplied 
+		'''
+
 		response = self.get_station_metadata() 
 
 		lat,long = self.parse_position(response) 
+
+		'''
+		setting latitude,longitude as private attributes 
+		'''
 		self.__lat = lat 
 		self.__long = long 
 
-		# pprint.pprint(response) 
+		'''
+		setting the measures depending on the station_id supplied, as well as the qualifer and
+		parameter which are used to filter which measures are set. 
+		'''
 		self.set_measures() 
 
-
-
 	'''
-	using @property methods so that both the latitude and longitude of a station can be accessed
-	but not directly modified by users 
+	defining getter methods using the @property decorator so that both 
+	the latitude and longitude of a sation are read only 
 	'''
-
-	def __str__(self) -> str: 
-
-		return f'\n----Station Summary----\n\nStation Type : {self.measure_type}\nStation ID : {self.station_id}\nLocation : {(self.__lat, self.__long)}\n\n-----Summary Ended-----\n'
 
 	@property
 	def latitude(self) -> float:
@@ -272,60 +357,26 @@ class station(ABC):
 		return self.__long 
 	
 
-	def get_readings(self,
-				measure_notation : str,
-				date_range : list[datetime.datetime] | None  = None, 
-				limit : int | None = None, 
-				csv : bool =  False) -> dict | str: 
-		
+	def __str__(self) -> str: 
+
 		'''
-		Creating a get readings helper funciton, which returns readings for a particular measure
-		provided a date_range and a record limit. Also with the option to return results as a csv for analysis 
-
-		Inputs: 
-
-			measure_notation [str] - particular measure you wish to retrieve readings for 
-			date_range [list] - range of dates which you wish to retreive the readings for 
-			limit [int] - maximum number of records you would like returned 
-			csv [bool] - if True will return results of query in csv format 
-
-		Output: 
-
-			result [dict | str] - returns results as either a JSON object or a csv string. 
+		ovewriting the __str__ method such that a summary of the station type is returned when the object is printed. 
 		'''
 
-		params= {}
-		query = f'id/measures/{measure_notation}/readings'
-		return_json = True 
+		return f'\n----Station Summary----\n\nStation Type : {self.measure_type}\nStation ID : {self.station_id}\nLocation : {(self.__lat, self.__long)}\n\n-----Summary Ended-----\n'
 
-		if csv: 
-			query = f'id/measures/{measure_notation}/readings.csv'
-			return_json = False 
-
-		if limit: 
-			params['_limit'] = limit 
-
-		date_range_= self.validate_date_range(date_range, return_str = True )
-
-		params['startdate'] = date_range_[0]
-		params['enddate'] = date_range_[1] 	
-
-		result = self.make_request(query, params , return_json ) 
-
-		return result 
 
 	def get_latest_measurement(self, limit : int = 1 ) -> dict:
 
-		''' Returns a dictionary which stores the latest measurements from a particular station'''
+		''' Returns a dictionary which stores the latest measurements from a particular station type '''
 
 		latest_measurements = {}
 
 		for measure in self.measures: 
-
 			measure_notation = measure.notation
 
 			try:
-				reading = self.get_readings(measure_notation, limit = 1 )['items'][0]['value'] 
+				reading = self.get_readings(measure_notation, limit = limit  )['items'][0]['value'] 
 		
 			except: 
 				reading = None 
@@ -385,7 +436,8 @@ class station(ABC):
 
 		return (fig, ax )
 
-	def plot_data_range(self, date_range : list | None = None  ) -> tuple[Figure, np.ndarray]:
+	def plot_data_range(self,
+					 	date_range : list | None = None ) -> tuple[Figure, np.ndarray]:
 
 		''' 
 		plot_date_range will plot all values for all of the measures for a particular measure station between a user
@@ -405,19 +457,22 @@ class station(ABC):
 
 		available_readings = []
 
-	
-		#Applying the valid_date_range static method to validate and transform date range
-		date_range = self.validate_date_range(date_range, return_str = True ) 
 
-		#calculating the correct unit required given our date range
+		'''
+		validating the date_rage supplied and computing the timestamp label format given the date_range
+		'''
+
+		date_range = self.validate_date_range(date_range, return_str = True ) 
 		label_format = self.configure_units(date_range)
 
 		''' 
-		First we are iterating through all measures attached to the class and retrieving all of the readings
-		within the date range specified, if the readings are none for particular measures then the readings are
-		ignored 
+		
+		iterating through all measures attached to the class and retrieving all of the readings
+		within the date range specified, if the readings are none for particular measures then they 
+		are excluded from the plot 
 		
 		'''
+
 		for idx, measure in enumerate(self.measures):
 
 			measure_notation = measure.notation
@@ -437,18 +492,15 @@ class station(ABC):
 
 		if len(available_readings) == 0:
 
-			raise Exception('No Readings data available for station currently')
+			raise Exception('No Readings data available for station and date_range')
 
 		'''
-		Creating as many subplots as available readings and looping through our available readings and plotting
-		them all 
-		
+		Creating as many subplots as available readings and plotting them
 		'''
 		fig, ax = plt.subplots(len(available_readings)) 
 
 		
-		''' given that we want to index our list of axes we will cast it to an array incase 
-		it happens to be a single axis '''
+		''' to index list of axes, casting it to an array incase it happens to be a single axis '''
 
 		ax = np.array([ax]) if len(available_readings) == 1 else  ax 
 
@@ -459,12 +511,14 @@ class station(ABC):
 
 			ax[idx].plot(times, values  )
 
+			
+			''' splitting the date_range up into 10 time markers''' 
 			step_size =   int((len(times) / 10) ) 
 
 			if len(times) < 10: 
 				step_size = 1
 
-
+			'''transforming timetamps to the correct format '''
 			labels = [ self.format_date(date, label_format) for date in times[::step_size] ] 
 
 
@@ -479,3 +533,5 @@ class station(ABC):
 		fig.supxlabel('time')
 
 		return fig, ax 
+	
+

@@ -112,7 +112,7 @@ Similar to `plot_date_range` if no dates are specied the readings for the curren
 
 ## Station Specific Functions 
 
-Some weather station classes have additional methods and attributesto extend the functionality of the base `station` class. E.g. The `Temperature` station class provides a function calculate the mean temperature and the `TidalLevel` station class provides a function to calculuate the tidal range. 
+Some weather station classes have additional methods and attributes to extend the functionality of the base `station` class. E.g. The `Temperature` station class provides a function calculate the mean temperature and the `TidalLevel` station class provides a function to calculuate the tidal range. 
 
 ### Temperature 
 
@@ -182,7 +182,10 @@ print(forecast)
 ``` py
 import matplotlib.pyplot as plt 
 
-fig, ax = forecast.visualise_predictions(predictions, ground_truth, test_timestamps, measure)  
+fig, ax = forecast.visualise_predictions(predictions = predictions, 
+                                         measure = measure,
+                                         test_timestamps =  test_timestamps,
+                                         ground_truth = ground_truth)
 
 plt.tight_layout() 
 
@@ -193,7 +196,7 @@ plt.show(block = True )
 plt.savefig('filepath')
 ```
 
-`ground_truth` is an optional parameter,  the `ground_truth` readings are supplied then they are plotted side by side with the predicted values. 
+`ground_truth` is an optional parameter, if `ground_truth` readings are supplied then they are plotted side by side with the predicted values and metrics are computed between the ground truth and predictions. 
 
 ### HOW TO: Evaluate weather forecasts 
 
@@ -210,7 +213,7 @@ forecast.evalute_forecast(measure = measure,
                                   lag_features = 3 ) 
 ```
 
-This function orchastrate and strings together  `ForecastStation` methods to evaluate a measure forecast with one function call. 
+This function orchastrates and strings together  `ForecastStation` methods to evaluate a measure forecast with one function call. 
 
 1. Retrieve and transform the data
 2. Train the model
@@ -219,7 +222,7 @@ This function orchastrate and strings together  `ForecastStation` methods to eva
 
 ## Additional Documentation 
 
-3 Ipython notebooks are available in the Documentation section, which provide more detail around which methods and attributes are available for each class. 
+3 jupyter notebooks are available in the documentation section. They provide more detail around which methods and attributes are available for each class. 
 
 ## Acknowledgements
 
