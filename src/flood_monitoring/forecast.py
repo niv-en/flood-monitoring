@@ -14,12 +14,10 @@ from matplotlib.axes import Axes
 
 import matplotlib.pyplot as plt 
 
-class ForecastStation(station):
+class Forecast(station):
 
-    def __init__(self, 
-                 station_id : str )  -> None : 
-        super().__init__(station_id = station_id ) 
-
+    def __init__(self):
+        pass 
 
     def load_data(self,
             measure_notation,
@@ -42,6 +40,7 @@ class ForecastStation(station):
                         split_date : str | None  = None, 
                         split_size : int  = 5   ): 
         
+        #taking a copy of our dataframe so we arent transforming the original date
         dataframe = dataframe.loc[:, : ]
 
         dataframe['dateTime64'] = pd.to_datetime(dataframe.dateTime) 

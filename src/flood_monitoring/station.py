@@ -163,22 +163,22 @@ class station(ABC):
 	def parse_metadata(response : str  ) -> tuple:
 
 		pass 
+	
+	@dataclass 
+	class measure_dclass:
 
+		notation : str
+		parameter : str 
+		qualifier : str
+		units : str
+		value_type : str
+
+		def __str__(self) -> str:
+			return f'\n----Measure Summary----\n\nMeasure ID : {self.notation}\nParameter : {self.parameter}\nQualifier : {self.qualifier}\nUnits : {self.units}\nValue Type : {self.value_type}'
+		
 
 	def set_measures(self) -> None:  
 
-		@dataclass 
-		class measure_dclass:
-
-			notation : str
-			parameter : str 
-			qualifier : str
-			units : str
-			value_type : str
-
-			def __str__(self) -> str:
-				return f'\n----Measure Summary----\n\nMeasure ID : {self.notation}\nParameter : {self.parameter}\nQualifier : {self.qualifier}\nUnits : {self.units}\nValue Type : {self.value_type}'
-			
 		'''
 		set_meaures retrives all measures which are available for a given station id and then filters for the
 		parameters and qualifiers specified for a particular station type. E.g. this will be used to initialise a 

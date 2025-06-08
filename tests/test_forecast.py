@@ -1,4 +1,5 @@
-from flood_monitoring import ForecastStation
+from flood_monitoring import Forecast, station
+
 import pytest 
 
 from matplotlib.figure import Figure 
@@ -11,30 +12,43 @@ from io import StringIO
 
 from sklearn.linear_model import LinearRegression
 
+
+
 VALID_ID = 'F1906' 
 
 @pytest.fixture
-def valid_obj() -> ForecastStation:
+def valid_obj() -> Forecast:
 
-    forecast_station = ForecastStation(VALID_ID) 
+    forecast = Forecast() 
 
-    return forecast_station
+    return forecast 
 
-def test_isinstance(valid_obj : ForecastStation):
+
+@pytest.fixture
+def measure() -> station.measure_dclass: 
+
+    measure = station.measure_dclass(
+        notation = '1412-temperature-dry_bulb-i-1_h-deg_C',
+        parameter = 'temperature', 
+        qualifier = 'Dry Blub',
+        units = 'deg C', 
+        value_type = '') 
+    
+    return measure 
+
+def test_isinstance(valid_obj : Forecast):
 
 
     '''
     Double checking that the forecast station has be instantiated correctly 
     '''
 
-    assert isinstance(valid_obj, ForecastStation)
+    assert isinstance(valid_obj, Forecast)
 
-def test_load_data(valid_obj : ForecastStation):
-
-    measure = valid_obj.measures[0] 
+def test_load_data(valid_obj : Forecast, measure : station.measure_dclass):
+    
     readings = valid_obj.load_data(measure.notation)
 
-    print(readings)
     assert isinstance(readings, pd.DataFrame) 
 
 '''
@@ -68,7 +82,7 @@ def sample_data():
 
     return sample_dataframe 
 
-def test_transform_data(valid_obj : ForecastStation, sample_data):
+def test_transform_data(valid_obj : Forecast, sample_data):
 
     transformed_data = valid_obj.transform_data(dataframe= sample_data,
                                                 lag_features=3) 
@@ -80,7 +94,7 @@ def test_transform_data(valid_obj : ForecastStation, sample_data):
     assert isinstance( X, np.ndarray ) 
     assert isinstance(y, np.ndarray ) 
 
-def test_transform_data_evaluation_set(valid_obj : ForecastStation, sample_data):
+def test_transform_data_evaluation_set(valid_obj : Forecast, sample_data):
     
     transformed_data = valid_obj.transform_data(dataframe= sample_data, 
                                                 lag_features=3,
@@ -90,7 +104,7 @@ def test_transform_data_evaluation_set(valid_obj : ForecastStation, sample_data)
     assert isinstance(transformed_data, tuple ) 
 
     train_x, train_y , test_x, test_y , test_timestamps = transformed_data
-    
+
     assert isinstance( train_x, np.ndarray ) 
     assert isinstance(train_y, np.ndarray ) 
     assert isinstance( test_x , np.ndarray) 
@@ -98,24 +112,19 @@ def test_transform_data_evaluation_set(valid_obj : ForecastStation, sample_data)
     assert isinstance(test_timestamps, np.ndarray) 
 
 
-def test_visualise_predictions(valid_obj : ForecastStation): 
+def test_visualise_predictions(valid_obj : Forecast, measure : station.measure_dclass): 
 
     predictions = [*range(1,10)]
     ground_truth = [*range(1,10)] 
     test_timestamps = [f'2025-06-0{i}T00:00:00Z' for i in range(1, 10) ] 
-    measure = valid_obj.measures[0] 
 
     fig, ax = valid_obj.visualise_predictions(predictions=predictions,
                                               ground_truth=ground_truth,
                                               test_timestamps=test_timestamps,
                                               measure = measure )
     
-    
     assert isinstance(fig, Figure) 
     assert isinstance(ax, Axes )
-
-
-
 
 @pytest.fixture
 def sample_training_data(): 

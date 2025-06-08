@@ -3,4 +3,4 @@ from .tidal_level import TidalLevel #noqa : F401
 from .temperature import Temperature #noqa : F401 
 from .river_flow import RiverFlow #noqa : F401 
 from .station import station #noqa : F401 
-from .forecast import ForecastStation #noqa : F401 
+from .forecast import Forecast #noqa : F401 
